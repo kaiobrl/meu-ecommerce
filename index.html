@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="transition duration-300">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sacolão do Gabriel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition duration-300"
+  >
+    <!-- Navbar -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+      <div
+        class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <h1 class="text-xl font-bold">HortiFruti</h1>
+        <nav class="space-x-6">
+          <button onclick="toggleTheme()" class="text-sm hover:underline">
+            🌓
+          </button>
+          <a href="#" class="text-sm hover:underline">Home</a>
+          <a href="./carrinho.html" class="text-sm hover:underline font-bold">
+            Carrinho
+            <span
+              id="cart-count"
+              class="bg-blue-500 text-white rounded-full px-2 text-xs"
+              >0</span
+            >
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section
+      class="bg-gray-800 text-white text-center py-16 rounded-lg mx-4 mt-8 shadow-lg"
+    >
+      <h2 class="text-3xl font-bold mb-2">Bem-vindo ao Sacolão do Gabriel</h2>
+      <p class="text-gray-300 mb-6">Verduras e legumes, ao seu alcance.</p>
+      <a
+        href="#"
+        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+        >Ver Produtos</a
+      >
+    </section>
+
+    <!-- Produtos -->
+    <section class="max-w-7xl mx-auto mt-12 px-4">
+      <h3 class="text-2xl font-semibold text-center mb-8">
+        Produtos em Destaque
+      </h3>
+      <div id="product-list" class="grid md:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- Modal -->
+    <div
+      id="modal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-96 relative"
+      >
+        <button onclick="closeModal()" class="absolute top-2 right-4 text-xl">
+          &times;
+        </button>
+        <h2 id="modal-title" class="text-xl font-bold mb-2"></h2>
+        <img id="modal-img" class="w-full h-40 object-cover rounded mb-2" />
+        <p id="modal-desc" class="mb-2"></p>
+        <p id="modal-price" class="font-semibold mb-4"></p>
+        <button
+          onclick="addToCart()"
+          class="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
+        >
+          Adicionar ao Carrinho
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white text-center py-6 mt-16">
+      <p class="text-sm">
+        &copy; 2025 Formato livre. Todos os direitos reservados.
+      </p>
+    </footer>
+
+    <!-- Script -->
+    <script>
+      const products = [
+        {
+          id: 1,
+          title: "Banana",
+          price: "R$ 5,00",
+          description: "A banana é uma fruta tropical, pertencente à família Musaceae, conhecida por seu formato alongado e casca amarela..",
+          image: "https://upload.wikimedia.org/wikipedia/commons/6/69/Banana.png",
+        },
+        {
+          id: 2,
+          title: "Melancia",
+          price: "R$ 6,00",
+          description: "A melancia é uma fruta refrescante, originária da África, conhecida por sua polpa suculenta e sabor doce, com alto teor de água (cerca de 90%)..",
+          image: "https://phygital-files.mercafacil.com/supermercado-real-de-niteroi/uploads/produto/melancia_1kg_8e1a815f-1a89-4882-8a0e-d2d6a4bcc161.png",
+        },
+        {
+          id: 3,
+          title: "Abacaxi",
+          price: "R$ 4,00",
+          description: "O abacaxi é uma fruta tropical conhecida pelo seu sabor doce e ácido, além da coroa característica de folhas. Nativo da América do Sul, é cultivado em diversas regiões tropicais e subtropicais, incluindo o Brasil, onde é um fruto bastante popular.",
+          image: "http://www.frutaskrausburg.com.br/image/resize?w=1100&h=750&fit=inside&src=userfiles/produtos/13e5ebd1c9b0ba763615b0f3d40dbb7c.png",
+        },
+      ];
+
+      let selectedProduct = null;
+
+      function renderProducts() {
+        const container = document.getElementById("product-list");
+        container.innerHTML = "";
+        products.forEach((product, index) => {
+          container.innerHTML += `
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <img src="${product.image}" alt="${product.title}" class="w-full h-40 object-cover rounded mb-4"/>
+            <h4 class="font-bold">${product.title}</h4>
+            <p class="mb-2">${product.price}</p>
+            <button onclick="showModal(${index})" class="w-full bg-gray-800 dark:bg-gray-700 text-white py-2 rounded hover:bg-gray-900">Ver Detalhes</button>
+          </div>
+        `;
+        });
+      }
+
+      function showModal(index) {
+        selectedProduct = products[index];
+        document.getElementById("modal-title").innerText =
+          selectedProduct.title;
+        document.getElementById("modal-img").src = selectedProduct.image;
+        document.getElementById("modal-desc").innerText =
+          selectedProduct.description;
+        document.getElementById("modal-price").innerText =
+          selectedProduct.price;
+        document.getElementById("modal").classList.remove("hidden");
+        document.getElementById("modal").classList.add("flex");
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.add("hidden");
+        document.getElementById("modal").classList.remove("flex");
+      }
+
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+        localStorage.setItem(
+          "theme",
+          document.documentElement.classList.contains("dark") ? "dark" : "light"
+        );
+      }
+
+      function loadTheme() {
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") document.documentElement.classList.add("dark");
+      }
+
+      function addToCart() {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.push(selectedProduct);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        updateCartCount();
+        closeModal();
+      }
+
+      function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+        document.getElementById("cart-count").innerText = cart.length;
+      }
+
+      // Inicialização
+      loadTheme();
+      renderProducts();
+      updateCartCount();
+    </script>
+  </body>
+</html>

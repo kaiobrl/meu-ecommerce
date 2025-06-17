@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="transition duration-300">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrinho - Tech Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+  </head>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition duration-300"
+  >
+    <!-- Navbar -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+      <div
+        class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <h1 class="text-xl font-bold">Tech Store</h1>
+        <nav class="space-x-6">
+          <a href="./index.html" class="text-sm hover:underline">Home</a>
+          <a href="./carrinho.html" class="text-sm hover:underline font-bold"
+            >Carrinho</a
+          >
+          <button onclick="toggleTheme()" class="text-sm">🌓</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="max-w-4xl mx-auto mt-10 px-4">
+      <h2 class="text-2xl font-bold mb-6 text-center">Seu Carrinho</h2>
+      <div id="cart-container" class="space-y-6"></div>
+
+      <!-- Produtos disponíveis para adicionar -->
+      <section class="mt-16">
+        <h2 class="text-xl font-bold mb-4">Adicionar mais produtos</h2>
+        <div
+          id="product-list"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        ></div>
+      </section>
+
+      <!-- Ações -->
+      <div class="flex justify-between mt-10 items-center">
+        <p id="total" class="text-lg font-semibold">Total: R$ 0,00</p>
+        <div class="space-x-4">
+          <!-- Ações com Formulário -->
+          <form
+            id="checkout-form"
+            onsubmit="checkout(event)"
+            class="mt-8 space-y-4"
+          >
+            <div class="flex flex-col sm:flex-row gap-4">
+              <input
+                required
+                type="text"
+                id="nome"
+                placeholder="Seu nome"
+                class="w-full p-2 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white"
+              />
+              <input
+                required
+                type="tel"
+                id="telefone"
+                placeholder="DDD + Telefone"
+                class="w-full p-2 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white"
+              />
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <button
+                type="button"
+                onclick="clearCart()"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+              >
+                Limpar Carrinho
+              </button>
+              <button
+                type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+              >
+                Finalizar Compra
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white text-center py-6 mt-16">
+      <p class="text-sm">
+        &copy; 2025 Formato livre. Todos os direitos reservados.
+      </p>
+    </footer>
+
+    <!-- Script -->
+    <script>
+      const produtosDisponiveis = [
+        {
+          id: 1,
+          title: "Coentro",
+          price: "R$ 3,00",
+          image: "https://acdn-us.mitiendanube.com/stores/002/955/442/products/coentro-verdao12-500be36d973b1cd38016801982817422-1024-1024.jpg",
+        },
+        {
+          id: 2,
+          title: "Alface",
+          price: "R$ 6,00",
+          image: "https://superprix.vteximg.com.br/arquivos/ids/178850-600-600/Alface-Crespa-Verde-Un-396.png?v=636934628540170000",
+        },
+        {
+          id: 3,
+          title: "Cenoura",
+          price: "R$ 6,00",
+          image: "https://www.maisquitanda.com.br/image/cache/1-verduras-legumes/cenoura%20rama-800x800.png",
+        },
+      ];
+
+      function renderProductList() {
+        const list = document.getElementById("product-list");
+        list.innerHTML = "";
+
+        produtosDisponiveis.forEach((produto) => {
+          list.innerHTML += `
+      <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex gap-4">
+        <img src="${produto.image}" alt="${
+            produto.title
+          }" class="w-24 h-20 object-cover rounded">
+        <div class="flex-1">
+          <h3 class="font-bold">${produto.title}</h3>
+          <p>${produto.price}</p>
+          <button onclick='addToCart(${JSON.stringify(
+            produto
+          )})' class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Adicionar</button>
+        </div>
+      </div>
+    `;
+        });
+      }
+
+      function addToCart(produto) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.push(produto);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
+
+      renderProductList();
+
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+        localStorage.setItem(
+          "theme",
+          document.documentElement.classList.contains("dark") ? "dark" : "light"
+        );
+      }
+
+      function loadTheme() {
+        const theme = localStorage.getItem("theme");
+        if (theme === "dark") document.documentElement.classList.add("dark");
+      }
+
+      function renderCart() {
+        const container = document.getElementById("cart-container");
+        const totalElement = document.getElementById("total");
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        if (cart.length === 0) {
+          container.innerHTML = `<p class="text-center">Seu carrinho está vazio.</p>`;
+          totalElement.innerText = "Total: R$ 0,00";
+          return;
+        }
+
+        let total = 0;
+        container.innerHTML = "";
+        cart.forEach((item, index) => {
+          const priceNum = parseFloat(
+            item.price.replace("R$ ", "").replace(".", "").replace(",", ".")
+          );
+          total += priceNum;
+
+          container.innerHTML += `
+          <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex items-center gap-4">
+            <img src="${item.image}" alt="${item.title}" class="w-24 h-20 object-cover rounded">
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">${item.title}</h3>
+              <p>${item.price}</p>
+            </div>
+            <button onclick="removeItem(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Remover</button>
+          </div>
+        `;
+        });
+
+        totalElement.innerText = `Total: R$ ${total
+          .toFixed(2)
+          .replace(".", ",")}`;
+      }
+
+      function removeItem(index) {
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
+
+      function clearCart() {
+        if (confirm("Tem certeza que deseja limpar o carrinho?")) {
+          localStorage.removeItem("cart");
+          renderCart();
+        }
+      }
+
+      function checkout(event) {
+        event.preventDefault();
+
+        const nome = document.getElementById("nome").value.trim();
+        const telefone = document.getElementById("telefone").value.trim();
+        const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        if (!nome || !telefone) {
+          alert("Por favor, preencha seu nome e telefone.");
+          return;
+        }
+
+        if (cart.length === 0) {
+          alert("Seu carrinho está vazio.");
+          return;
+        }
+
+        let mensagem = `*Pedido Formato livre*%0A`;
+        mensagem += ` Nome: ${nome}%0A Telefone: ${telefone}%0A%0A`;
+
+        let total = 0;
+        cart.forEach((item, i) => {
+          mensagem += `${i + 1}. ${item.title} - ${item.price}%0A`;
+          total += parseFloat(
+            item.price.replace("R$ ", "").replace(".", "").replace(",", ".")
+          );
+        });
+        mensagem += `%0ATotal: R$ ${total.toFixed(2).replace(".", ",")}%0A`;
+
+        mensagem += `%0A Olá, gostaria de finalizar este pedido.`;
+
+        const numeroWhatsApp = "5583981374944"; // Substitua com seu número
+        const url = `https://wa.me/${numeroWhatsApp}?text=${mensagem}`;
+
+        // Limpa o carrinho e redireciona para a página de obrigado
+        localStorage.removeItem("cart");
+        window.open(url, "_blank"); // abre o WhatsApp
+        window.location.href = "obrigado.html"; // redireciona para a página de agradecimento
+      }
+
+      // Inicialização
+      loadTheme();
+      renderCart();
+    </script>
+  </body>
+</html>
